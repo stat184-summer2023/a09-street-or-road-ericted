@@ -7,16 +7,11 @@ output: html_notebook
 ## Load in the data
 
 ```{r}
-#load libraries 
 library(tidyverse)
-
-#load in the data here 
-# we will only be using the "street-addresses.csv" file from the text
+library(dplyr)
 download.file(url="https://mdbeckman.github.io/dcSupplement/data/CMS_ProvidersSimple.rds",
               destfile = "Your-Name-For-The-File.rds")
 DataTable <- readRDS("Your-Name-For-The-File.rds")
-
-
 
 ```
 
@@ -41,23 +36,14 @@ print(nmatches$address)
 ```{r}
 
 
-# Read the street address data
 Addresses <- read_csv("https://mdbeckman.github.io/dcSupplement/data/street-addresses.csv")
-
-# Define the regular expression pattern for "PO BOX"
 pattern <- "PO BOX"
-
-# Find the cases that match the pattern
 Matches <- Addresses %>% filter(grepl(pattern, address))
 
-# Find the cases that don't match the pattern
 nmatches <- Addresses %>% filter(!grepl(pattern, address))
 
-# Print the matching addresses
 print(Matches$address)
-
-# Print the non-matching addresses
-print(Dont$address)
+print(nmatches$address)
 
 ```
 
@@ -71,7 +57,7 @@ numMatches <- Addresses %>%
   filter(grepl(pattern, address)) %>%
   nrow()
 
-# Print the result
+
 print(numMatches)
 
 
@@ -79,7 +65,7 @@ print(numMatches)
 
 ```
 
-My answer here...... 
+
 
 
 ## Back to the Streets: Your Turn
@@ -98,22 +84,43 @@ LeftOvers <-
 (ST|RD|ROAD) matches any occurrence of "ST", "RD", or "ROAD" in a string
 
 
-This code filters the Addresses dataframe to create a new dataframe called LeftOvers. It selects the rows that do not match specific patterns using the grepl() function.
+- create a new dataframe called LeftOvers. It selects the rows that do not match specific patterns using for grepl() .
 
 
-!grepl(pattern, address) filters out the rows where the address column does not contain the pattern defined in the pattern variable. It removes addresses that have "ST", "RD", or "ROAD" in them.
+!grepl(pattern, address) filters out the rows where the address column does not contain the "pattern". It removes addresses that have "ST", "RD", or "ROAD" in them.
 
 
-!grepl("\\sAPT|UNIT\\s[\\d]+$", address) filters out the rows where the address column does not contain a pattern that matches either "APT" or "UNIT" followed by a space and a number at the end of the string. It removes addresses with apartment or unit numbers.
+!grepl("\\sAPT|UNIT\\s[\\d]+$", address) filter out the rows"\\sAPT|UNIT\\s[\\d]+$"  It removes addresses with apartment or unit numbers.
 
 !grepl(" BOX ", address) filters out the rows where the address column does not contain the exact pattern " BOX ". It removes addresses that include the term " BOX ".
-The resulting LeftOvers dataframe contains the rows that do not match any of the specified patterns, representing the remaining addresses after filtering out the ones with road-related terms, apartment/unit numbers, and " BOX " references.
+The resulting LeftOvers dataframe contains the rows that do not match any of the specified patterns, representing the remaining addresses after filtering out the ones with road-related terms, apartment/unit numbers, and " BOX ".
 #### Part 2: Implement your method on the entire `Addresses` data set. Explain how your code works line by line.
 
 ```{r}
+#pattern matches any occurrence of "ST", "RD", or "ROAD" in a string
+pattern <- "(ST|RD|ROAD)"
 
+#addresses is orginal data from upper part, defined leftobers 
+LeftOvers <- Addresses %>%
+  # filter row based on specified ,!grepl(pattern, address) address column contains the pattern defined in the pattern variable.
+  filter(!grepl(pattern, address),
+  #pattern that matches either "APT" or "UNIT" , filter out row "addresses"
+         !grepl("\\sAPT|UNIT\\s[\\d]+$", address),
+  #filter out row "addresses" , removes addresses that include the term " BOX ".
+         !grepl(" BOX ", address)
+  
+  
+  
+  )
 
+##PO BOX" or "NCSU BOX" in a string.
+pattern <- "PO BOX|NCSU BOX"
 
+numMatches <- Addresses %>%
+  #grepl(pattern, address),address column contains a match for the pattern defined in the pattern
+  filter(grepl(pattern, address)) %>%
+  ##calculates the number of rows.
+  nrow()
 ```
 
 My answer here.......
@@ -122,6 +129,16 @@ My answer here.......
 
 ```{r}
 
+Addresses <- Addresses %>%
+  mutate(street_ending = str_extract(address, "(ST|RD|ROAD)$"))
+
+street_ending_counts <- Addresses %>%
+  filter(!is.na(street_ending)) %>%
+  count(street_ending, sort = TRUE)
+
+
+street_ending_counts %>%
+  arrange(desc(n))
 
 ```
 
@@ -130,9 +147,28 @@ My answer here.......
 Note: make sure your order street names according to popularity, not alphabetically.
 
 ```{r}
+library(ggplot2)
+
+Addresses <- Addresses %>%
+  mutate(street_ending = str_extract(address, "(ST|RD|ROAD)$"))
+
+street_ending_counts <- Addresses %>%
+  filter(!is.na(street_ending)) %>%
+  count(street_ending, sort = TRUE)
+
+street_ending_counts <- street_ending_counts %>%
+  arrange(desc(n))
+
+
+ggplot(street_ending_counts, aes(x = street_ending, y = n)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Street Name Ending", y = "Count") +
+  coord_flip() +
+  theme_minimal()
+
 
 ```
 
 #### Additional Question 3: Comment on any patterns you see
 
-My answer here.......
+The overall pattern observed in the bar chart suggests that certain street name endings are more commonly utilized than others, with "St," "Rd," and "Ave" being the most prevalent suffixes in the dataset. These findings offer insights into the naming conventions the streets within the dataset's coverage area.
