@@ -1,6 +1,6 @@
 ---
 title: "Activity: Street or Road?"
-author: "YOUR NAME HERE"
+author: "seungjunkim"
 output: html_notebook
 ---
 
@@ -8,9 +8,13 @@ output: html_notebook
 
 ```{r}
 #load libraries 
+library(tidyverse)
 
 #load in the data here 
 # we will only be using the "street-addresses.csv" file from the text
+download.file(url="https://mdbeckman.github.io/dcSupplement/data/CMS_ProvidersSimple.rds",
+              destfile = "Your-Name-For-The-File.rds")
+DataTable <- readRDS("Your-Name-For-The-File.rds")
 
 
 
@@ -20,6 +24,15 @@ output: html_notebook
 
 ```{r}
 
+Sample <- DataTable %>% sample_n(size = 50)
+
+pattern <- "PO BOX"
+
+Matches <- Sample %>% filter(grepl(pattern, address))
+nmatches <- Sample %>% filter(!grepl(pattern, address))
+
+print(Matches$address)
+print(nmatches$address)
 
 ```
 
@@ -28,11 +41,40 @@ output: html_notebook
 ```{r}
 
 
+# Read the street address data
+Addresses <- read_csv("https://mdbeckman.github.io/dcSupplement/data/street-addresses.csv")
+
+# Define the regular expression pattern for "PO BOX"
+pattern <- "PO BOX"
+
+# Find the cases that match the pattern
+Matches <- Addresses %>% filter(grepl(pattern, address))
+
+# Find the cases that don't match the pattern
+nmatches <- Addresses %>% filter(!grepl(pattern, address))
+
+# Print the matching addresses
+print(Matches$address)
+
+# Print the non-matching addresses
+print(Dont$address)
+
 ```
 
 #### Additional Question: How many addresses are a PO BOX (including NCSU BOX)? 
 
 ```{r}
+
+pattern <- "PO BOX|NCSU BOX"
+
+numMatches <- Addresses %>%
+  filter(grepl(pattern, address)) %>%
+  nrow()
+
+# Print the result
+print(numMatches)
+
+
 
 
 ```
@@ -53,9 +95,19 @@ LeftOvers <-
           !grepl(" BOX ", address)
           )
 ```
+(ST|RD|ROAD) matches any occurrence of "ST", "RD", or "ROAD" in a string
 
-My answer here.......
 
+This code filters the Addresses dataframe to create a new dataframe called LeftOvers. It selects the rows that do not match specific patterns using the grepl() function.
+
+
+!grepl(pattern, address) filters out the rows where the address column does not contain the pattern defined in the pattern variable. It removes addresses that have "ST", "RD", or "ROAD" in them.
+
+
+!grepl("\\sAPT|UNIT\\s[\\d]+$", address) filters out the rows where the address column does not contain a pattern that matches either "APT" or "UNIT" followed by a space and a number at the end of the string. It removes addresses with apartment or unit numbers.
+
+!grepl(" BOX ", address) filters out the rows where the address column does not contain the exact pattern " BOX ". It removes addresses that include the term " BOX ".
+The resulting LeftOvers dataframe contains the rows that do not match any of the specified patterns, representing the remaining addresses after filtering out the ones with road-related terms, apartment/unit numbers, and " BOX " references.
 #### Part 2: Implement your method on the entire `Addresses` data set. Explain how your code works line by line.
 
 ```{r}
