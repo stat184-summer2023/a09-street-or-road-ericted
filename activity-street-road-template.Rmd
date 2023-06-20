@@ -20,9 +20,7 @@ DataTable <- readRDS("Your-Name-For-The-File.rds")
 ```{r}
 
 Sample <- DataTable %>% sample_n(size = 50)
-
 pattern <- "PO BOX"
-
 Matches <- Sample %>% filter(grepl(pattern, address))
 nmatches <- Sample %>% filter(!grepl(pattern, address))
 
@@ -151,6 +149,7 @@ library(ggplot2)
 
 Addresses <- Addresses %>%
   mutate(street_ending = str_extract(address, "(ST|RD|ROAD)$"))
+
 
 street_ending_counts <- Addresses %>%
   filter(!is.na(street_ending)) %>%
