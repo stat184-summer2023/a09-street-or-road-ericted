@@ -9,9 +9,11 @@ output: html_notebook
 ```{r}
 library(tidyverse)
 library(dplyr)
-download.file(url="https://mdbeckman.github.io/dcSupplement/data/CMS_ProvidersSimple.rds",
-              destfile = "Your-Name-For-The-File.rds")
-DataTable <- readRDS("Your-Name-For-The-File.rds")
+Addresses <- read_csv("https://mdbeckman.github.io/dcSupplement/data/street-addresses.csv")
+Sample <- 
+  Addresses %>%
+  sample_n(size = 50)
+
 
 ```
 
@@ -19,7 +21,7 @@ DataTable <- readRDS("Your-Name-For-The-File.rds")
 
 ```{r}
 
-Sample <- DataTable %>% sample_n(size = 50)
+Sample <- Addresses %>% sample_n(size = 50)
 pattern <- "PO BOX"
 Matches <- Sample %>% filter(grepl(pattern, address))
 nmatches <- Sample %>% filter(!grepl(pattern, address))
@@ -34,7 +36,7 @@ print(nmatches$address)
 ```{r}
 
 
-Addresses <- read_csv("https://mdbeckman.github.io/dcSupplement/data/street-addresses.csv")
+
 pattern <- "PO BOX"
 Matches <- Addresses %>% filter(grepl(pattern, address))
 
@@ -121,7 +123,7 @@ numMatches <- Addresses %>%
   nrow()
 ```
 
-My answer here.......
+
 
 #### Additional Question 1: Present your result from part 2 by providing a table in descending order of popularity for the street name endings you found
 
